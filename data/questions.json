@@ -1,0 +1,220 @@
+{
+  "Keahlian Teknis & Background": {
+    "question": "Jelaskan pengalaman Anda dalam menggunakan Python dan library data science (pandas, numpy, scikit-learn). Berikan contoh proyek spesifik yang pernah Anda kerjakan.",
+    "keywords": [
+      "python",
+      "pandas",
+      "numpy",
+      "scikit-learn",
+      "tensorflow",
+      "pytorch",
+      "data",
+      "model",
+      "proyek",
+      "pengalaman",
+      "implementasi",
+      "analisis"
+    ],
+    "ideal_length": [100, 250],
+    "weight": {
+      "technical": 0.4,
+      "depth": 0.3,
+      "structure": 0.3
+    }
+  },
+  "Pengetahuan Statistik": {
+    "question": "Bagaimana Anda menjelaskan perbedaan antara supervised learning dan unsupervised learning kepada stakeholder non-teknis? Berikan contoh use case masing-masing.",
+    "keywords": [
+      "supervised",
+      "unsupervised",
+      "machine learning",
+      "klasifikasi",
+      "regresi",
+      "clustering",
+      "model",
+      "prediksi",
+      "contoh",
+      "use case",
+      "stakeholder"
+    ],
+    "ideal_length": [80, 200],
+    "weight": {
+      "technical": 0.3,
+      "depth": 0.3,
+      "structure": 0.4
+    }
+  },
+  "Data Wrangling & EDA": {
+    "question": "Ceritakan pengalaman Anda dalam melakukan data cleaning dan exploratory data analysis (EDA). Apa tantangan terbesar yang Anda hadapi dan bagaimana Anda mengatasinya?",
+    "keywords": [
+      "cleaning",
+      "missing values",
+      "outlier",
+      "visualisasi",
+      "eda",
+      "exploratory",
+      "kualitas data",
+      "preprocessing",
+      "tantangan",
+      "solusi",
+      "imputasi"
+    ],
+    "ideal_length": [100, 250],
+    "weight": {
+      "technical": 0.35,
+      "depth": 0.35,
+      "structure": 0.3
+    }
+  },
+  "Problem Solving & Studi Kasus": {
+    "question": "Bayangkan Anda diminta untuk membuat model prediksi churn pelanggan. Jelaskan langkah-langkah yang akan Anda ambil dari awal hingga deployment ke production.",
+    "keywords": [
+      "churn",
+      "prediksi",
+      "model",
+      "feature engineering",
+      "evaluasi",
+      "metrik",
+      "deployment",
+      "dampak bisnis",
+      "langkah",
+      "proses",
+      "pipeline"
+    ],
+    "ideal_length": [150, 300],
+    "weight": {
+      "technical": 0.3,
+      "depth": 0.4,
+      "structure": 0.3
+    }
+  },
+  "Pemahaman Bisnis": {
+    "question": "Bagaimana Anda memastikan bahwa model machine learning yang Anda buat memberikan nilai kepada bisnis? Berikan contoh metrik atau cara pengukuran yang Anda gunakan.",
+    "keywords": [
+      "nilai bisnis",
+      "roi",
+      "dampak",
+      "metrik",
+      "kpi",
+      "stakeholder",
+      "keputusan",
+      "actionable",
+      "contoh",
+      "pengukuran",
+      "cost benefit"
+    ],
+    "ideal_length": [80, 200],
+    "weight": {
+      "technical": 0.25,
+      "depth": 0.35,
+      "structure": 0.4
+    }
+  },
+  "Komunikasi & Kolaborasi": {
+    "question": "Jelaskan pengalaman Anda dalam mengkomunikasikan hasil analisis data kepada tim non-teknis. Bagaimana cara Anda menyederhanakan konsep yang kompleks?",
+    "keywords": [
+      "komunikasi",
+      "visualisasi",
+      "presentasi",
+      "stakeholder",
+      "menjelaskan",
+      "sederhana",
+      "storytelling",
+      "dashboard",
+      "non-teknis",
+      "audiens",
+      "klaritas"
+    ],
+    "ideal_length": [80, 200],
+    "weight": {
+      "technical": 0.2,
+      "depth": 0.3,
+      "structure": 0.5
+    }
+  },
+  "Evaluasi & Optimasi Model": {
+    "question": "Jelaskan metode yang Anda gunakan untuk mengevaluasi performa model dan melakukan hyperparameter tuning. Bagaimana cara Anda menghindari overfitting?",
+    "keywords": [
+      "evaluasi",
+      "cross-validation",
+      "metrik",
+      "akurasi",
+      "precision",
+      "recall",
+      "hyperparameter",
+      "tuning",
+      "overfitting",
+      "regularisasi",
+      "grid search"
+    ],
+    "ideal_length": [100, 250],
+    "weight": {
+      "technical": 0.45,
+      "depth": 0.35,
+      "structure": 0.2
+    }
+  },
+  "Big Data & Skalabilitas": {
+    "question": "Ceritakan pengalaman Anda bekerja dengan dataset skala besar. Tools dan teknik apa yang Anda gunakan untuk mengatasi masalah skalabilitas?",
+    "keywords": [
+      "big data",
+      "spark",
+      "hadoop",
+      "distributed",
+      "skalabilitas",
+      "performa",
+      "optimasi",
+      "parallel processing",
+      "cluster",
+      "memory management"
+    ],
+    "ideal_length": [100, 250],
+    "weight": {
+      "technical": 0.4,
+      "depth": 0.35,
+      "structure": 0.25
+    }
+  },
+  "Etika & Bias dalam AI": {
+    "question": "Bagaimana Anda mengidentifikasi dan mengatasi bias dalam model machine learning? Berikan contoh dari pengalaman Anda atau pendekatan yang akan Anda gunakan.",
+    "keywords": [
+      "bias",
+      "fairness",
+      "etika",
+      "diskriminasi",
+      "protected attributes",
+      "demographic parity",
+      "keadilan model",
+      "mitigasi bias",
+      "ethical ai"
+    ],
+    "ideal_length": [80, 200],
+    "weight": {
+      "technical": 0.3,
+      "depth": 0.4,
+      "structure": 0.3
+    }
+  },
+  "MLOps & Deployment": {
+    "question": "Jelaskan pengalaman Anda dalam deploy model machine learning ke production. Apa saja pertimbangan dan tantangan yang Anda hadapi?",
+    "keywords": [
+      "deployment",
+      "production",
+      "mlops",
+      "monitoring",
+      "api",
+      "docker",
+      "kubernetes",
+      "ci/cd",
+      "versioning",
+      "model serving",
+      "skalabilitas"
+    ],
+    "ideal_length": [120, 280],
+    "weight": {
+      "technical": 0.35,
+      "depth": 0.35,
+      "structure": 0.3
+    }
+  }
+}
