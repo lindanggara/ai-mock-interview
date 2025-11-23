@@ -95,7 +95,7 @@ class ScoringEngine:
     
     def generate_detailed_feedback(self, answer, best_answer, analysis_result, scores):
         """
-        Generate comprehensive feedback with comparison
+        Generate comprehensive feedback with comparison (INDONESIAN VERSION)
         
         Args:
             answer (str): User's answer
@@ -281,6 +281,21 @@ class ScoringEngine:
                 "Kuantifikasi hasil dengan angka spesifik: 'akurasi 87%', 'proses 2 juta records', dll"
             )
         
+        # Overall recommendations based on score
+        overall_score = scores['overall']
+        if overall_score >= 4.0:
+            recommendations.append(
+                "Jawaban excellent! Terus latihan dengan pertanyaan yang lebih menantang"
+            )
+        elif overall_score >= 3.0:
+            recommendations.append(
+                "Fondasi solid. Fokus pada penambahan kedalaman teknis dan contoh spesifik"
+            )
+        else:
+            recommendations.append(
+                "Terus berlatih! Review konsep fundamental dan pelajari contoh jawaban"
+            )
+        
         # Generate specific actionable feedback
         specific_feedback = self._generate_specific_feedback(
             answer, best_answer, analysis_result, scores
@@ -293,185 +308,6 @@ class ScoringEngine:
             'strengths': strengths[:4],
             'improvements': improvements[:4],
             'gaps': gaps if gaps else ["Jawaban Anda sudah cukup lengkap!"],
-            'specific_feedback': specific_feedback,
-            'summary': summary,
-            'recommendations': recommendations[:5]
-        }
-        
-        # Analyze keyword coverage
-        keyword_data = analysis_result['keyword_analysis']
-        if keyword_data['coverage'] >= 60:
-            strengths.append(
-                f"Excellent keyword coverage ({keyword_data['coverage']:.0f}%) - "
-                "you mentioned most of the expected technical terms"
-            )
-        elif keyword_data['coverage'] >= 40:
-            strengths.append(
-                f"Good keyword coverage ({keyword_data['coverage']:.0f}%) - "
-                "solid grasp of key concepts"
-            )
-        elif keyword_data['coverage'] < 30:
-            improvements.append(
-                f"Low keyword coverage ({keyword_data['coverage']:.0f}%) - "
-                "try to incorporate more relevant technical terms"
-            )
-            recommendations.append(
-                "Review the key concepts for this topic and ensure your answer addresses them directly"
-            )
-        
-        # Analyze technical entities
-        ner_data = analysis_result['ner']
-        if ner_data['total'] >= 5:
-            strengths.append(
-                f"Strong technical depth - mentioned {ner_data['total']} specific "
-                f"tools/methods/metrics across {ner_data['diversity']} categories"
-            )
-        elif ner_data['total'] >= 3:
-            strengths.append(
-                f"Good technical references - used {ner_data['total']} specific terms"
-            )
-        elif ner_data['total'] < 2:
-            improvements.append(
-                "Limited technical specificity - mention concrete tools, libraries, or methodologies"
-            )
-            recommendations.append(
-                "Include specific names of tools/libraries/frameworks you've used in your projects"
-            )
-        
-        # Analyze structure
-        struct_data = analysis_result['structural']
-        if struct_data['has_examples'] and struct_data['has_structure']:
-            strengths.append(
-                "Well-structured answer with concrete examples - demonstrates practical experience"
-            )
-        elif struct_data['has_examples']:
-            strengths.append(
-                "Provided concrete examples - good demonstration of practical knowledge"
-            )
-        elif not struct_data['has_examples']:
-            improvements.append(
-                "No specific examples provided - answer feels too theoretical"
-            )
-            recommendations.append(
-                "Use the STAR method: describe a Situation, Task, Action, and Result from your experience"
-            )
-        
-        if not struct_data['length_appropriate']:
-            if analysis_result['readability']['word_count'] < 50:
-                improvements.append(
-                    "Answer is too brief - provide more detailed explanation"
-                )
-                recommendations.append(
-                    "Aim for at least 100 words. Elaborate on your thought process and reasoning"
-                )
-            elif analysis_result['readability']['word_count'] > 400:
-                improvements.append(
-                    "Answer is quite lengthy - focus on the most important points"
-                )
-                recommendations.append(
-                    "Practice being more concise. Aim for 150-250 words for most questions"
-                )
-        
-        # Analyze readability
-        read_data = analysis_result['readability']
-        if read_data['assessment'] in ['Excellent', 'Good']:
-            strengths.append(
-                f"Clear and well-structured writing ({read_data['assessment'].lower()} readability)"
-            )
-        elif read_data['assessment'] in ['Poor structure', 'Needs improvement']:
-            improvements.append(
-                f"Readability could be improved - {read_data['assessment'].lower()}"
-            )
-            recommendations.append(
-                f"Your average sentence length is {read_data['avg_sentence_length']:.1f} words. "
-                "Aim for 15-20 words per sentence for optimal clarity"
-            )
-        
-        # Analyze sentiment
-        sent_data = analysis_result['sentiment']
-        if sent_data['polarity'] > 0.2:
-            strengths.append(
-                "Confident and positive tone throughout your response"
-            )
-        elif sent_data['polarity'] < -0.1:
-            improvements.append(
-                "Tone seems uncertain or negative - project more confidence"
-            )
-            recommendations.append(
-                "Use more positive language. Instead of focusing on challenges, emphasize solutions"
-            )
-        
-        # Analyze coherence
-        coh_data = analysis_result['coherence']
-        if coh_data['score'] >= 4.0:
-            strengths.append(
-                "Excellent logical flow with good use of transition words"
-            )
-        elif coh_data['score'] < 2.5:
-            improvements.append(
-                "Answer lacks coherence - ideas seem disconnected"
-            )
-            recommendations.append(
-                "Use transition words like 'however', 'moreover', 'therefore' to connect your ideas"
-            )
-        
-        # Analyze similarity (if available)
-        if 'similarity' in analysis_result and analysis_result['similarity']:
-            sim_data = analysis_result['similarity']
-            if sim_data['cosine_similarity'] >= 0.5:
-                strengths.append(
-                    f"Good alignment with best practices ({sim_data['cosine_similarity']:.0%} similarity)"
-                )
-            elif sim_data['cosine_similarity'] < 0.3:
-                improvements.append(
-                    "Answer diverges significantly from expected approach"
-                )
-                recommendations.append(
-                    "Research common interview answers for this topic to understand what's typically expected"
-                )
-        
-        # Analyze TF-IDF
-        tfidf_data = analysis_result['tfidf']
-        if tfidf_data['lexical_diversity'] >= 0.6:
-            strengths.append(
-                f"Rich vocabulary with {tfidf_data['lexical_diversity']:.0%} lexical diversity"
-            )
-        elif tfidf_data['lexical_diversity'] < 0.3:
-            improvements.append(
-                "Limited vocabulary - answer seems repetitive"
-            )
-            recommendations.append(
-                "Vary your word choice and avoid repeating the same terms"
-            )
-        
-        # Overall recommendations based on score
-        overall_score = scores['overall']
-        if overall_score >= 4.0:
-            recommendations.append(
-                "Excellent response! Continue practicing with more challenging questions"
-            )
-        elif overall_score >= 3.0:
-            recommendations.append(
-                "Solid foundation. Focus on adding more technical depth and specific examples"
-            )
-        else:
-            recommendations.append(
-                "Keep practicing! Review fundamental concepts and study sample answers"
-            )
-        
-        # Limit to top items
-        # Generate specific actionable feedback
-        specific_feedback = self._generate_specific_feedback(
-            answer, best_answer, analysis_result, scores
-        )
-        
-        # Generate summary
-        summary = self._generate_summary(scores, strengths, improvements)
-        
-        return {
-            'strengths': strengths[:4],
-            'improvements': improvements[:4],
-            'gaps': gaps,
             'specific_feedback': specific_feedback,
             'summary': summary,
             'recommendations': recommendations[:5]
@@ -493,16 +329,16 @@ class ScoringEngine:
         return overlap > 3
     
     def _generate_specific_feedback(self, answer, best_answer, analysis, scores):
-        """Generate specific actionable feedback"""
+        """Generate specific actionable feedback (INDONESIAN)"""
         feedback_parts = []
         
         # Technical accuracy feedback
         if scores['technical_accuracy'] < 3.5:
             feedback_parts.append(
-                "**Technical Depth:** Your answer lacks sufficient technical details. "
-                "Include specific tools, libraries, and methodologies you've used. "
-                "For example, instead of saying 'I analyzed data', say 'I used pandas "
-                "to analyze 2M records with 15 features, handling missing values through "
+                "**Kedalaman Teknis:** Jawaban Anda kurang detail teknis. "
+                "Sertakan tools, library, dan metodologi spesifik yang Anda gunakan. "
+                "Misalnya, daripada bilang 'Saya analisis data', katakan 'Saya pakai pandas "
+                "untuk analisis 2 juta records dengan 15 fitur, handle missing values pakai "
                 "KNN imputation.'"
             )
         
@@ -511,87 +347,86 @@ class ScoringEngine:
         if kw_data['coverage'] < 50:
             missing = set(kw_data['expected_keywords']) - set(kw_data['found_keywords'])
             feedback_parts.append(
-                f"**Key Concepts Missing:** Your answer doesn't cover important concepts "
-                f"like: {', '.join(list(missing)[:5])}. Make sure to address all aspects "
-                f"of the question."
+                f"**Konsep Kunci yang Hilang:** Jawaban Anda belum cover konsep penting "
+                f"seperti: {', '.join(list(missing)[:5])}. Pastikan address semua aspek "
+                f"pertanyaan."
             )
         
         # Structure feedback
         struct_data = analysis['structural']
         if not struct_data['has_examples']:
             feedback_parts.append(
-                "**Concrete Examples:** Add specific examples from your experience. "
-                "Use the STAR method: Situation (context), Task (challenge), "
-                "Action (what you did), Result (outcome with metrics)."
+                "**Contoh Konkret:** Tambahkan contoh spesifik dari pengalaman Anda. "
+                "Gunakan metode STAR: Situasi (konteks), Tugas (tantangan), "
+                "Aksi (yang Anda lakukan), Result (hasil dengan metrik)."
             )
         
         # Quantification feedback
         if not struct_data['has_numbers']:
             feedback_parts.append(
-                "**Quantify Results:** Include specific metrics and numbers. "
-                "For example: 'improved model accuracy by 15%', 'reduced processing time "
-                "from 2 hours to 15 minutes', or 'analyzed dataset with 1M+ rows'."
+                "**Kuantifikasi Hasil:** Sertakan metrik dan angka spesifik. "
+                "Contoh: 'tingkatkan akurasi model 15%', 'kurangi waktu proses "
+                "dari 2 jam jadi 15 menit', atau 'analisis dataset dengan 1 juta+ baris'."
             )
         
         # Communication feedback
         if scores['communication_clarity'] < 3.5:
             feedback_parts.append(
-                "**Clarity:** Your answer could be clearer. Break down complex ideas "
-                "into simpler terms. Avoid jargon unless necessary, and when you use "
-                "technical terms, briefly explain them in business context."
+                "**Kejelasan:** Jawaban Anda bisa lebih jelas. Pecah ide kompleks "
+                "jadi istilah lebih sederhana. Hindari jargon kecuali perlu, dan kalau pakai "
+                "istilah teknis, jelaskan singkat dalam konteks bisnis."
             )
         
         # Best practice comparison
         if analysis.get('similarity', {}).get('cosine_similarity', 0) < 0.4:
             feedback_parts.append(
-                "**Alignment with Best Practices:** Your answer differs significantly "
-                "from expected responses. Review the example answer to understand what "
-                "interviewers typically look for. Focus on: business impact, technical "
-                "implementation, problem-solving approach, and measurable outcomes."
+                "**Alignment dengan Best Practices:** Jawaban Anda cukup berbeda "
+                "dari expected response. Review contoh jawaban untuk pahami apa yang "
+                "interviewer biasanya cari. Fokus pada: dampak bisnis, implementasi teknis, "
+                "pendekatan problem-solving, dan hasil terukur."
             )
         
         return "\n\n".join(feedback_parts) if feedback_parts else \
-               "Your answer is well-structured and covers the key points effectively!"
+               "Jawaban Anda sudah terstruktur baik dan cover poin-poin kunci dengan efektif!"
     
     def _generate_summary(self, scores, strengths, improvements):
-        """Generate overall summary"""
+        """Generate overall summary (INDONESIAN)"""
         overall = scores['overall']
         
         if overall >= 4.5:
             return (
-                "**Outstanding Performance!** Your answer demonstrates strong technical "
-                "knowledge, clear communication, and practical experience. You're "
-                "well-prepared for data science interviews. Continue practicing with "
-                "more advanced questions and focus on explaining complex concepts simply."
+                "**Performa Luar Biasa!** Jawaban Anda menunjukkan pengetahuan teknis yang kuat, "
+                "komunikasi jelas, dan pengalaman praktis. Anda sudah siap untuk interview "
+                "data science. Terus latihan dengan pertanyaan lebih advanced dan fokus "
+                "menjelaskan konsep kompleks dengan sederhana."
             )
         elif overall >= 4.0:
             return (
-                "**Very Good!** You have a solid foundation and communicate your ideas "
-                "well. Minor improvements in technical depth or specific examples would "
-                "make your answer even stronger. Focus on quantifying your achievements "
-                "and connecting technical work to business value."
+                "**Sangat Bagus!** Anda punya fondasi solid dan komunikasi ide dengan baik. "
+                "Improvement kecil di kedalaman teknis atau contoh spesifik akan membuat "
+                "jawaban lebih kuat. Fokus pada kuantifikasi achievement dan hubungkan "
+                "pekerjaan teknis ke nilai bisnis."
             )
         elif overall >= 3.5:
             return (
-                "**Good Progress!** Your answer covers the basics well. To improve, add "
-                "more specific technical details, concrete examples from your experience, "
-                "and quantifiable results. Practice explaining your approach step-by-step "
-                "and connecting it to business impact."
+                "**Progress Bagus!** Jawaban Anda cover basic dengan baik. Untuk improve, tambah "
+                "detail teknis lebih spesifik, contoh konkret dari pengalaman, dan hasil "
+                "terukur. Latih menjelaskan pendekatan step-by-step dan hubungkan ke "
+                "dampak bisnis."
             )
         elif overall >= 3.0:
             return (
-                "**Fair Performance.** You understand the concepts but need more detail "
-                "and structure. Focus on: 1) Adding specific tools/technologies, "
-                "2) Providing concrete examples, 3) Quantifying results, 4) Using "
-                "the STAR method to structure your answer."
+                "**Performa Cukup.** Anda paham konsep tapi perlu lebih detail dan struktur. "
+                "Fokus pada: 1) Tambah tools/teknologi spesifik, 2) Berikan contoh konkret, "
+                "3) Kuantifikasi hasil, 4) Gunakan metode STAR untuk struktur jawaban."
             )
         else:
             return (
-                "**Needs Improvement.** Your answer needs significant work. Key areas: "
-                "1) Study core concepts more deeply, 2) Practice with real examples, "
-                "3) Learn to structure answers using STAR method, 4) Research common "
-                "interview questions and model answers. Don't be discouraged - keep "
-                "practicing daily!"
+                "**Perlu Improvement.** Jawaban Anda butuh perbaikan signifikan. Area kunci: "
+                "1) Pelajari konsep core lebih dalam, 2) Latihan dengan contoh nyata, "
+                "3) Belajar struktur jawaban pakai metode STAR, 4) Research pertanyaan "
+                "interview umum dan model answer. Jangan berkecil hati - terus latihan "
+                "setiap hari!"
             )
     
     def get_percentile_rank(self, score, historical_scores):
@@ -615,7 +450,7 @@ class ScoringEngine:
     
     def generate_improvement_plan(self, scores, analysis_result):
         """
-        Generate personalized improvement plan
+        Generate personalized improvement plan (INDONESIAN)
         
         Args:
             scores (dict): Score breakdown
@@ -634,34 +469,34 @@ class ScoringEngine:
         
         improvement_map = {
             'keyword': {
-                'area': 'Technical Terminology',
-                'action': 'Study key terms and concepts related to data science',
-                'resources': ['Online glossaries', 'Technical blogs', 'Documentation']
+                'area': 'Terminologi Teknis',
+                'action': 'Pelajari istilah dan konsep kunci terkait data science',
+                'resources': ['Glossary online', 'Blog teknis', 'Dokumentasi']
             },
             'ner': {
-                'area': 'Tool & Technology Knowledge',
-                'action': 'Learn and practice with specific tools and libraries',
+                'area': 'Pengetahuan Tools & Teknologi',
+                'action': 'Belajar dan praktik dengan tools dan library spesifik',
                 'resources': ['Online courses', 'Hands-on projects', 'GitHub repositories']
             },
             'readability': {
-                'area': 'Communication Clarity',
-                'action': 'Practice writing clear, concise explanations',
-                'resources': ['Writing workshops', 'Technical writing guides', 'Peer review']
+                'area': 'Kejelasan Komunikasi',
+                'action': 'Latih menulis penjelasan yang jelas dan concise',
+                'resources': ['Workshop menulis', 'Panduan technical writing', 'Peer review']
             },
             'structural': {
-                'area': 'Answer Organization',
-                'action': 'Use frameworks like STAR method for structured responses',
-                'resources': ['Interview prep books', 'Mock interviews', 'Feedback sessions']
+                'area': 'Organisasi Jawaban',
+                'action': 'Gunakan framework seperti metode STAR untuk respon terstruktur',
+                'resources': ['Buku persiapan interview', 'Mock interviews', 'Feedback sessions']
             },
             'coherence': {
-                'area': 'Logical Flow',
-                'action': 'Practice connecting ideas with transition words',
-                'resources': ['Writing exercises', 'Outlining practice', 'Essay analysis']
+                'area': 'Alur Logika',
+                'action': 'Latih menghubungkan ide dengan kata transisi',
+                'resources': ['Latihan menulis', 'Praktik outlining', 'Analisis essay']
             },
             'similarity': {
-                'area': 'Expected Content Coverage',
-                'action': 'Research common interview questions and model answers',
-                'resources': ['Interview prep sites', 'YouTube channels', 'Mentor feedback']
+                'area': 'Cakupan Konten yang Diharapkan',
+                'action': 'Research pertanyaan interview umum dan model answer',
+                'resources': ['Situs persiapan interview', 'Channel YouTube', 'Mentor feedback']
             }
         }
         
@@ -675,16 +510,16 @@ class ScoringEngine:
         }
     
     def _get_overall_recommendation(self, overall_score):
-        """Get overall recommendation based on score"""
+        """Get overall recommendation based on score (INDONESIAN)"""
         if overall_score >= 4.5:
-            return "Outstanding! You're interview-ready. Focus on advanced topics and leadership scenarios."
+            return "Outstanding! Anda sudah interview-ready. Fokus pada topik advanced dan skenario leadership."
         elif overall_score >= 4.0:
-            return "Very good! Polish your answers and practice under time pressure."
+            return "Sangat bagus! Polish jawaban dan latihan dengan time pressure."
         elif overall_score >= 3.5:
-            return "Good foundation. Work on technical depth and providing concrete examples."
+            return "Fondasi bagus. Kerjakan kedalaman teknis dan berikan contoh konkret."
         elif overall_score >= 3.0:
-            return "Decent start. Focus on improving technical accuracy and communication clarity."
+            return "Start yang decent. Fokus improve akurasi teknis dan kejelasan komunikasi."
         elif overall_score >= 2.5:
-            return "Needs improvement. Review fundamental concepts and practice regularly."
+            return "Perlu improvement. Review konsep fundamental dan latihan reguler."
         else:
-            return "Significant work needed. Start with basics and gradually build up complexity."
+            return "Butuh kerja signifikan. Mulai dari basic dan bangun kompleksitas bertahap."
