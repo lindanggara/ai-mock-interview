@@ -1,5 +1,6 @@
 import streamlit as st
 import sys
+import plotly.graph_objects as go
 from pathlib import Path
 import json
 
@@ -757,7 +758,7 @@ Ingat: Sertakan angka, tools spesifik, dan dampak bisnis!""",
             # Ringkasan
             st.markdown("#### 📋 Ringkasan")
             st.info(feedback['summary'])
-            
+
             # Rekomendasi
             with st.expander("📚 Rekomendasi Belajar"):
                 st.markdown("**Sumber Belajar yang Direkomendasikan:**")
@@ -766,187 +767,205 @@ Ingat: Sertakan angka, tools spesifik, dan dampak bisnis!""",
 
 with tab2:
     st.markdown("### 📊 Dashboard Analitik Anda")
-    
+
     if st.session_state.question_count == 0:
         st.info("📝 Mulai latihan untuk melihat analitik Anda!")
+    
     else:
-        # Summary Cards
-        col_sum1, col_sum2, col_sum3, col_sum4 = st.columns(4)
-        
+        # ============ HITUNG METRIK ============
         avg_score = st.session_state.total_score / st.session_state.question_count
-        
+        best_score = max([item['score'] for item in st.session_state.interview_history])
+
+        improvement = 0
+        if len(st.session_state.interview_history) >= 2:
+            recent_avg = sum([item['score'] for item in st.session_state.interview_history[-3:]]) / min(3, len(st.session_state.interview_history))
+            first_avg = sum([item['score'] for item in st.session_state.interview_history[:3]]) / min(3, len(st.session_state.interview_history))
+            improvement = recent_avg - first_avg
+
+        # ============ HERO CARDS ============
+        st.markdown("#### 🎯 Performance Overview")
+        col_sum1, col_sum2, col_sum3, col_sum4 = st.columns(4)
+
         with col_sum1:
-            st.metric(
-                "Total Latihan",
-                st.session_state.question_count,
-                help="Jumlah pertanyaan yang sudah dijawab"
-            )
-        
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        padding: 1.5rem; border-radius: 15px; text-align: center;">
+                <div style="color:white; opacity:0.9; font-size:0.9rem;">Total Latihan</div>
+                <div style="color:white; font-size:2.5rem; font-weight:800;">{st.session_state.question_count}</div>
+                <div style="color:white; opacity:0.8; font-size:0.85rem;">pertanyaan dijawab</div>
+            </div>
+            """, unsafe_allow_html=True)
+
         with col_sum2:
-            st.metric(
-                "Rata-rata Skor",
-                f"{avg_score:.1f}/5.0",
-                delta=f"{'+' if avg_score >= 3.5 else ''}{avg_score - 3.5:.1f}",
-                help="Target: 3.5+"
-            )
-        
+            avg_color = "#11998e" if avg_score >= 4.0 else "#667eea" if avg_score >= 3.5 else "#f093fb"
+            avg_color_end = "#38ef7d" if avg_score >= 4.0 else "#764ba2" if avg_score >= 3.5 else "#f5576c"
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, {avg_color}, {avg_color_end});
+                        padding: 1.5rem; border-radius: 15px; text-align: center;">
+                <div style="color:white; opacity:0.9; font-size:0.9rem;">Rata-rata Skor</div>
+                <div style="color:white; font-size:2.5rem; font-weight:800;">
+                    {avg_score:.1f}<span style="font-size:1.2rem; opacity:0.8;">/5.0</span>
+                </div>
+                <div style="color:white; opacity:0.8; font-size:0.85rem;">
+                    {'🎯 Excellent!' if avg_score >= 4.0 else '👍 Good!' if avg_score >= 3.5 else '💪 Keep Going!'}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
         with col_sum3:
-            best_score = max([item['score'] for item in st.session_state.interview_history])
-            st.metric(
-                "Skor Terbaik",
-                f"{best_score:.1f}/5.0",
-                help="Skor tertinggi yang pernah dicapai"
-            )
-        
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #f093fb, #f5576c);
+                        padding: 1.5rem; border-radius: 15px; text-align: center;">
+                <div style="color:white; opacity:0.9; font-size:0.9rem;">Skor Terbaik</div>
+                <div style="color:white; font-size:2.5rem; font-weight:800;">
+                    {best_score:.1f}<span style="font-size:1.2rem; opacity:0.8;">/5.0</span>
+                </div>
+                <div style="color:white; opacity:0.8; font-size:0.85rem;">🏆 personal best</div>
+            </div>
+            """, unsafe_allow_html=True)
+
         with col_sum4:
-            improvement = 0
-            if len(st.session_state.interview_history) >= 2:
-                recent_avg = sum([item['score'] for item in st.session_state.interview_history[-3:]]) / min(3, len(st.session_state.interview_history))
-                first_avg = sum([item['score'] for item in st.session_state.interview_history[:3]]) / min(3, len(st.session_state.interview_history))
-                improvement = recent_avg - first_avg
-            
-            st.metric(
-                "Peningkatan",
-                f"{improvement:+.1f}",
-                delta="dari awal" if improvement > 0 else None,
-                help="Perbandingan 3 latihan terakhir vs 3 pertama"
-            )
-        
+            imp_color = "#11998e" if improvement > 0 else "#667eea" if improvement == 0 else "#dc3545"
+            imp_color_end = "#38ef7d" if improvement > 0 else "#764ba2" if improvement == 0 else "#f5576c"
+            imp_icon = "📈" if improvement > 0 else "➡️" if improvement == 0 else "📉"
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, {imp_color}, {imp_color_end});
+                        padding: 1.5rem; border-radius: 15px; text-align: center;">
+                <div style="color:white; opacity:0.9; font-size:0.9rem;">Peningkatan</div>
+                <div style="color:white; font-size:2.5rem; font-weight:800;">{improvement:+.1f}</div>
+                <div style="color:white; opacity:0.8; font-size:0.85rem;">{imp_icon} dari awal</div>
+            </div>
+            """, unsafe_allow_html=True)
+
         st.markdown("---")
-        
-        # Grafik Progress Over Time
-        if len(st.session_state.interview_history) > 1:
-            st.markdown("#### 📈 Perkembangan Skor dari Waktu ke Waktu")
-            
-            progress_fig = viz_generator.create_progress_chart(st.session_state.interview_history)
-            st.plotly_chart(progress_fig, use_container_width=True)
-            
-            st.caption("💡 Garis biru: skor actual | Garis hijau: trend | Garis kuning: target (3.5)")
-        
-        st.markdown("---")
-        
-        # Performance by Category
-        st.markdown("#### 🎯 Performa per Kategori")
-        
+
+        # ============ KATEGORI CHART ============
+        st.markdown("#### 📊 Category Performance Ranking")
+
+        # buat data kategori
         category_data = {}
         for item in st.session_state.interview_history:
             cat = item['category']
-            if cat not in category_data:
-                category_data[cat] = []
-            category_data[cat].append(item['score'])
-        
-        if category_data:
-            # Hitung rata-rata per kategori
-            category_avgs = {cat: sum(scores)/len(scores) for cat, scores in category_data.items()}
-            
-            # Bar chart performa per kategori
-            import plotly.graph_objects as go
-            
-            categories = list(category_avgs.keys())
-            avgs = list(category_avgs.values())
-            attempts = [len(category_data[cat]) for cat in categories]
-            
-            # Color coding berdasarkan skor
-            colors = ['#28a745' if avg >= 4.0 else '#ffc107' if avg >= 3.5 else '#dc3545' 
-                     for avg in avgs]
-            
-            fig = go.Figure(data=[
-                go.Bar(
-                    x=categories,
-                    y=avgs,
-                    text=[f"{avg:.1f}<br>({att}x)" for avg, att in zip(avgs, attempts)],
-                    textposition='outside',
-                    marker_color=colors,
-                    hovertemplate='<b>%{x}</b><br>Rata-rata: %{y:.2f}/5.0<extra></extra>'
-                )
-            ])
-            
-            fig.update_layout(
-                title="Rata-rata Skor per Kategori",
-                xaxis_title="Kategori",
-                yaxis_title="Skor (0-5)",
-                yaxis=dict(range=[0, 5.5]),
-                showlegend=False,
-                height=400
-            )
-            
-            # Tambah garis target
-            fig.add_hline(y=3.5, line_dash="dash", line_color="orange", 
-                         annotation_text="Target: 3.5")
-            
-            st.plotly_chart(fig, use_container_width=True)
-            
-            st.caption("💡 Hijau: Excellent (≥4.0) | Kuning: Good (≥3.5) | Merah: Perlu Latihan (<3.5)")
-        
+            category_data.setdefault(cat, []).append(item['score'])
+
+        category_avgs = {cat: sum(v) / len(v) for cat, v in category_data.items()}
+
+        sorted_cats = sorted(category_avgs.items(), key=lambda x: x[1], reverse=True)
+        cats_sorted = [c[0] for c in sorted_cats]
+        scores_sorted = [c[1] for c in sorted_cats]
+        attempts_sorted = [len(category_data[c[0]]) for c in sorted_cats]
+
+        colors_sorted = [
+            '#11998e' if s >= 4 else '#667eea' if s >= 3.5 else '#f093fb' if s >= 3 else '#dc3545'
+            for s in scores_sorted
+        ]
+
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            y=cats_sorted,
+            x=scores_sorted,
+            orientation='h',
+            text=[f"{s:.1f} ({a}x)" for s, a in zip(scores_sorted, attempts_sorted)],
+            textposition='outside',
+            marker=dict(color=colors_sorted, line=dict(color='white', width=2))
+        ))
+
+        fig.update_layout(
+            xaxis=dict(range=[0, 5.5]),
+            height=max(300, len(cats_sorted) * 50),
+            margin=dict(l=150)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption("💡 Hijau ≥4.0 | Biru ≥3.5 | Pink ≥3.0 | Merah <3.0")
+
         st.markdown("---")
-        
-        # Breakdown by Difficulty
+
+        # ============ PROGRESS CHART ============
+
+        st.markdown("#### 📈 Perkembangan Skor dari Waktu ke Waktu")
+
+        progress_fig = viz_generator.create_progress_chart(st.session_state.interview_history)
+        st.plotly_chart(progress_fig, use_container_width=True)
+
+        st.caption("💡 Biru: skor | Hijau: trend | Kuning: target 3.5")
+
+        st.markdown("---")
+
+        # ============ PERFORMA KATEGORI (BAR CHART) ============
+        st.markdown("#### 🎯 Performa per Kategori")
+
+        categories = list(category_avgs.keys())
+        avgs = list(category_avgs.values())
+        attempts = [len(category_data[c]) for c in categories]
+
+        colors = ['#28a745' if a >= 4 else '#ffc107' if a >= 3.5 else '#dc3545' for a in avgs]
+
+        fig = go.Figure([go.Bar(
+            x=categories,
+            y=avgs,
+            text=[f"{a:.1f}<br>({t}x)" for a, t in zip(avgs, attempts)],
+            textposition='outside',
+            marker_color=colors
+        )])
+
+        fig.update_layout(
+            yaxis=dict(range=[0, 5.5]),
+            height=400
+        )
+        fig.add_hline(y=3.5, line_dash="dash", line_color="orange")
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("---")
+
+        # ============ DIFFICULTY BREAKDOWN ============
         st.markdown("#### 📊 Performa Berdasarkan Level Kesulitan")
-        
+
         difficulty_data = {}
         for item in st.session_state.interview_history:
-            diff = item['difficulty']
-            if diff not in difficulty_data:
-                difficulty_data[diff] = []
-            difficulty_data[diff].append(item['score'])
-        
-        if difficulty_data:
-            col_d1, col_d2, col_d3 = st.columns(3)
-            
-            for col, level in zip([col_d1, col_d2, col_d3], ['Junior', 'Mid-level', 'Senior']):
-                if level in difficulty_data:
-                    scores = difficulty_data[level]
-                    avg = sum(scores) / len(scores)
-                    
-                    with col:
-                        st.metric(
-                            f"{level}",
-                            f"{avg:.1f}/5.0",
-                            f"{len(scores)} percobaan"
-                        )
-        
+            difficulty_data.setdefault(item['difficulty'], []).append(item['score'])
+
+        col_d1, col_d2, col_d3 = st.columns(3)
+        for col, lvl in zip([col_d1, col_d2, col_d3], ['Junior', 'Mid-level', 'Senior']):
+            if lvl in difficulty_data:
+                scores = difficulty_data[lvl]
+                col.metric(lvl, f"{sum(scores)/len(scores):.1f}/5.0", f"{len(scores)} percobaan")
+
         st.markdown("---")
-        
-        # Strengths & Weaknesses
+
+        # ============ STRENGTH & WEAKNESS ============
         st.markdown("#### 💪 Kekuatan & Area Pengembangan")
-        
+
         col_sw1, col_sw2 = st.columns(2)
-        
+
         with col_sw1:
             st.markdown("**🌟 Kategori Terkuat:**")
-            if category_avgs:
-                top_3 = sorted(category_avgs.items(), key=lambda x: x[1], reverse=True)[:3]
-                for i, (cat, score) in enumerate(top_3, 1):
-                    st.markdown(f"{i}. **{cat}**: {score:.1f}/5.0")
-        
+            top_3 = sorted(category_avgs.items(), key=lambda x: x[1], reverse=True)[:3]
+            for i, (cat, s) in enumerate(top_3, 1):
+                st.markdown(f"{i}. **{cat}** — {s:.1f}/5.0")
+
         with col_sw2:
-            st.markdown("**📈 Perlu Lebih Banyak Latihan:**")
-            if category_avgs:
-                bottom_3 = sorted(category_avgs.items(), key=lambda x: x[1])[:3]
-                for i, (cat, score) in enumerate(bottom_3, 1):
-                    st.markdown(f"{i}. **{cat}**: {score:.1f}/5.0")
-        
+            st.markdown("**📈 Perlu Latihan:**")
+            bottom_3 = sorted(category_avgs.items(), key=lambda x: x[1])[:3]
+            for i, (cat, s) in enumerate(bottom_3, 1):
+                st.markdown(f"{i}. **{cat}** — {s:.1f}/5.0")
+
         st.markdown("---")
-        
-        # Recent Performance
-        st.markdown("#### 🕐 Performa 5 Latihan Terakhir")
-        
-        recent_5 = st.session_state.interview_history[-5:]
-        
-        for i, item in enumerate(reversed(recent_5), 1):
-            col_r1, col_r2, col_r3 = st.columns([3, 1, 1])
-            
-            with col_r1:
-                st.markdown(f"**{len(st.session_state.interview_history) - i + 1}. {item['category']}**")
-            
-            with col_r2:
-                score_color = "🟢" if item['score'] >= 4.0 else "🟡" if item['score'] >= 3.5 else "🔴"
-                st.markdown(f"{score_color} {item['score']:.1f}/5.0")
-            
-            with col_r3:
+
+        # ============ RECENT 5 ============
+        st.markdown("#### 🕐 5 Latihan Terakhir")
+
+        recent = st.session_state.interview_history[-5:]
+        for i, item in enumerate(reversed(recent), 1):
+            c1, c2, c3 = st.columns([3,1,1])
+            with c1:
+                st.markdown(f"**{len(st.session_state.interview_history)-i+1}. {item['category']}**")
+            with c2:
+                color = "🟢" if item['score']>=4 else "🟡" if item['score']>=3.5 else "🔴"
+                st.markdown(f"{color} {item['score']:.1f}/5.0")
+            with c3:
                 st.caption(item['difficulty'])
-                with col2:
-                    st.caption(f"{len(scores)} percobaan")
 
 with tab3:
     st.markdown("### 💡 Tips & Panduan Interview")
