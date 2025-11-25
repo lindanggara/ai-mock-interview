@@ -86,7 +86,6 @@ PHASE 3: RESULTS
 - 📈 **VisualizationGenerator**: Plotly interactive charts
 - 💾 **Session State**: History tracking & progress monitoring
 
-> **💡 Lihat flowchart lengkap**: Buka `flowchart.html` di browser untuk visualisasi interaktif!
 
 ---
 
