@@ -6,7 +6,6 @@ Implements comprehensive NLP algorithms for interview answer analysis
 import re
 import string
 from collections import Counter
-from textblob import TextBlob
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -328,53 +327,234 @@ class TextMiningAnalyzer:
     
     def sentiment_analysis(self, answer):
         """
-        Analyze sentiment and tone
-        
-        Args:
-            answer (str): User's answer
-            
-        Returns:
-            dict: Sentiment analysis results
+        Comprehensive keyword-based sentiment analysis for Indonesian + English mixed text
+        Lebih reliable daripada TextBlob untuk mixed language
         """
         try:
-            blob = TextBlob(answer)
-            polarity = blob.sentiment.polarity  # -1 to 1
-            subjectivity = blob.sentiment.subjectivity  # 0 to 1
+            answer_lower = answer.lower()
+            
+            # ==================== POSITIVE KEYWORDS ====================
+            positive_keywords = [
+                # Indonesian - Achievement & Success
+                'berhasil', 'sukses', 'meningkat', 'efektif', 'optimal', 'bagus',
+                'baik', 'positif', 'untung', 'profit', 'naik', 'tinggi', 'unggul',
+                'hebat', 'luar biasa', 'signifikan', 'peningkatan', 'mencapai',
+                'membantu', 'solutif', 'inovatif', 'efisien', 'produktif', 'cemerlang',
+                'sempurna', 'maksimal', 'terbaik', 'unggulan', 'andal', 'handal',
+                'lancar', 'cepat', 'akurat', 'presisi', 'tepat', 'sesuai', 'cocok',
+                
+                # Indonesian - Growth & Improvement
+                'bertumbuh', 'berkembang', 'maju', 'membaik', 'meningkatkan',
+                'memperbaiki', 'mengoptimalkan', 'memaksimalkan', 'menyempurnakan',
+                'menyelesaikan', 'mengatasi', 'solusi', 'teratasi', 'terselesaikan',
+                
+                # Indonesian - Business Impact
+                'menghemat', 'hemat', 'efisiensi', 'revenue', 'pendapatan', 'omset',
+                'keuntungan', 'laba', 'roi', 'return', 'valuable', 'bernilai',
+                'berharga', 'menguntungkan', 'profitable', 'skalabel', 'scalable',
+                
+                # English - Achievement & Success
+                'success', 'successful', 'achieve', 'achieved', 'accomplish',
+                'accomplished', 'improve', 'improved', 'improvement', 'increase',
+                'increased', 'effective', 'efficiently', 'optimal', 'optimized',
+                'excellent', 'great', 'outstanding', 'exceptional', 'superior',
+                'amazing', 'fantastic', 'wonderful', 'remarkable', 'impressive',
+                
+                # English - Growth & Performance
+                'boost', 'boosted', 'enhance', 'enhanced', 'growth', 'grow',
+                'gain', 'gained', 'advance', 'advanced', 'progress', 'progressed',
+                'upgrade', 'upgraded', 'better', 'best', 'top', 'leading', 'peak',
+                
+                # English - Business Impact
+                'profit', 'profitable', 'revenue', 'save', 'saved', 'savings',
+                'reduce cost', 'cost reduction', 'valuable', 'value', 'benefit',
+                'advantageous', 'breakthrough', 'innovative', 'innovation',
+                
+                # English - Technical Success
+                'accurate', 'accuracy', 'precise', 'precision', 'reliable',
+                'robust', 'stable', 'scalable', 'high performance', 'fast',
+                'efficient', 'streamline', 'streamlined', 'automate', 'automated'
+            ]
+            
+            # ==================== NEGATIVE KEYWORDS ====================
+            negative_keywords = [
+                # Indonesian - Failure & Problems
+                'gagal', 'kegagalan', 'turun', 'menurun', 'buruk', 'jelek',
+                'sulit', 'kesulitan', 'masalah', 'kendala', 'hambatan', 'halangan',
+                'rintangan', 'tantangan', 'kurang', 'kekurangan', 'rendah', 'lemah',
+                'tidak', 'belum', 'minus', 'rugi', 'kerugian', 'loss', 'berkurang',
+                'penurunan', 'merosot', 'anjlok', 'jatuh', 'drop',
+                
+                # Indonesian - Uncertainty & Risk
+                'ragu', 'bingung', 'tidak yakin', 'tidak pasti', 'risiko', 'bahaya',
+                'mengkhawatirkan', 'khawatir', 'was-was', 'takut', 'cemas',
+                
+                # Indonesian - Quality Issues
+                'error', 'bug', 'cacat', 'rusak', 'salah', 'keliru', 'menyimpang',
+                'meleset', 'tidak akurat', 'bias', 'overfitting', 'underfitting',
+                'lambat', 'lelet', 'hang', 'crash', 'down', 'downtime',
+                
+                # English - Failure & Problems
+                'fail', 'failed', 'failure', 'decrease', 'decreased', 'decline',
+                'declined', 'drop', 'dropped', 'fall', 'fell', 'poor', 'bad',
+                'worse', 'worst', 'terrible', 'awful', 'horrible', 'weak',
+                'difficult', 'difficulty', 'problem', 'issue', 'trouble',
+                'challenge', 'challenging', 'obstacle', 'barrier', 'bottleneck',
+                
+                # English - Uncertainty & Risk
+                'uncertain', 'unsure', 'doubt', 'doubtful', 'risk', 'risky',
+                'danger', 'dangerous', 'concern', 'concerning', 'worry', 'worried',
+                
+                # English - Quality Issues
+                'error', 'bug', 'buggy', 'broken', 'crash', 'crashed', 'wrong',
+                'incorrect', 'inaccurate', 'imprecise', 'unreliable', 'unstable',
+                'slow', 'lag', 'latency', 'delay', 'timeout', 'downtime',
+                'overfitting', 'underfitting', 'biased', 'skewed', 'noisy',
+                
+                # English - Loss & Negative Impact
+                'loss', 'lose', 'losing', 'waste', 'wasted', 'inefficient',
+                'inefficiency', 'costly', 'expensive', 'leak', 'leakage'
+            ]
+            
+            # ==================== TECHNICAL KEYWORDS ====================
+            technical_keywords = [
+                # Programming Languages
+                'python', 'r', 'sql', 'java', 'scala', 'julia', 'javascript',
+                'typescript', 'c++', 'cpp', 'go', 'rust', 'bash', 'shell',
+                
+                # ML/DL Frameworks
+                'tensorflow', 'pytorch', 'keras', 'scikit-learn', 'sklearn',
+                'scikit', 'xgboost', 'lightgbm', 'catboost', 'h2o', 'mllib',
+                'fastai', 'huggingface', 'transformers', 'bert', 'gpt',
+                
+                # Data Tools
+                'pandas', 'numpy', 'scipy', 'matplotlib', 'seaborn', 'plotly',
+                'dask', 'polars', 'pyspark', 'spark', 'hadoop', 'hive', 'pig',
+                'airflow', 'dagster', 'prefect', 'kafka', 'flink', 'storm',
+                
+                # Databases
+                'mysql', 'postgresql', 'postgres', 'mongodb', 'redis', 'cassandra',
+                'elasticsearch', 'neo4j', 'dynamodb', 'snowflake', 'bigquery',
+                'redshift', 'oracle', 'mssql', 'sqlite', 'mariadb',
+                
+                # Cloud Platforms
+                'aws', 'azure', 'gcp', 'google cloud', 'amazon web services',
+                's3', 'ec2', 'lambda', 'sagemaker', 'databricks', 'emr',
+                'glue', 'athena', 'kinesis', 'cloudformation', 'terraform',
+                
+                # ML/DL Algorithms
+                'regression', 'logistic regression', 'linear regression',
+                'classification', 'clustering', 'k-means', 'dbscan', 'hierarchical',
+                'random forest', 'decision tree', 'gradient boosting', 'adaboost',
+                'svm', 'support vector', 'naive bayes', 'knn', 'k-nearest',
+                'neural network', 'deep learning', 'cnn', 'convolutional',
+                'rnn', 'recurrent', 'lstm', 'gru', 'transformer', 'attention',
+                'autoencoder', 'gan', 'generative', 'reinforcement learning',
+                
+                # ML Techniques
+                'feature engineering', 'feature selection', 'dimensionality reduction',
+                'pca', 'principal component', 't-sne', 'umap', 'cross validation',
+                'hyperparameter tuning', 'grid search', 'random search', 'bayesian optimization',
+                'ensemble', 'bagging', 'boosting', 'stacking', 'blending',
+                'regularization', 'l1', 'l2', 'lasso', 'ridge', 'elastic net',
+                'dropout', 'batch normalization', 'data augmentation', 'transfer learning',
+                
+                # NLP/CV Specific
+                'nlp', 'natural language processing', 'tokenization', 'embedding',
+                'word2vec', 'glove', 'fasttext', 'tfidf', 'tf-idf', 'bow',
+                'sentiment analysis', 'named entity', 'ner', 'pos tagging',
+                'computer vision', 'object detection', 'image classification',
+                'segmentation', 'yolo', 'rcnn', 'maskrcnn', 'unet', 'resnet',
+                'vgg', 'inception', 'mobilenet', 'efficientnet',
+                
+                # Metrics (Indo + English)
+                'akurasi', 'accuracy', 'precision', 'recall', 'f1-score', 'f1',
+                'auc', 'roc', 'rmse', 'mse', 'mae', 'r-squared', 'r2', 'mape',
+                'confusion matrix', 'classification report', 'loss', 'epoch',
+                
+                # Business Metrics (Indo + English)
+                'kpi', 'roi', 'revenue', 'profit', 'margin', 'conversion',
+                'churn', 'retention', 'ctr', 'click-through', 'engagement',
+                'user', 'customer', 'pelanggan', 'transaksi', 'transaction',
+                
+                # Numbers & Scale (Indo + English)
+                '%', 'persen', 'percent', 'juta', 'million', 'miliar', 'billion',
+                'ribu', 'thousand', 'ratus', 'hundred', 'triliun', 'trillion',
+                
+                # MLOps & Deployment
+                'docker', 'kubernetes', 'k8s', 'mlflow', 'kubeflow', 'ci/cd',
+                'jenkins', 'github actions', 'gitlab ci', 'deployment', 'deploy',
+                'api', 'rest api', 'fastapi', 'flask', 'django', 'endpoint',
+                'model serving', 'inference', 'prediction', 'monitoring',
+                'logging', 'metrics', 'observability', 'a/b test', 'experiment',
+                
+                # Data Engineering
+                'etl', 'elt', 'data pipeline', 'data warehouse', 'data lake',
+                'batch processing', 'stream processing', 'real-time', 'realtime',
+                'data quality', 'data validation', 'schema', 'partitioning'
+            ]
+            
+            # Count keywords
+            pos_count = sum(1 for word in positive_keywords if word in answer_lower)
+            neg_count = sum(1 for word in negative_keywords if word in answer_lower)
+            tech_count = sum(1 for word in technical_keywords if word in answer_lower)
+            
+            # Calculate polarity (-1 to 1)
+            total_sentiment = pos_count + neg_count
+            if total_sentiment > 0:
+                polarity = (pos_count - neg_count) / total_sentiment
+            else:
+                polarity = 0.0
+            
+            # Calculate subjectivity (0 to 1)
+            # More technical terms = less subjective (more objective/factual)
+            word_count = len(answer.split())
+            if word_count > 0:
+                tech_ratio = min(tech_count / word_count, 1.0)
+                subjectivity = max(0.3, 1.0 - tech_ratio)  # At least 0.3
+            else:
+                subjectivity = 0.5
             
             # Determine polarity label
-            if polarity > 0.1:
+            if polarity > 0.15:
                 polarity_label = "Positive & Confident"
-            elif polarity < -0.1:
+            elif polarity < -0.15:
                 polarity_label = "Negative/Uncertain"
             else:
                 polarity_label = "Neutral"
             
             # Score calculation
-            # For interviews, slightly positive is good
-            sentiment_score = ((polarity + 1) / 2) * 5
-            
-            # Balanced subjectivity is better (not too emotional, not too dry)
-            balance_score = (1 - abs(subjectivity - 0.4)) * 5
-            
+            sentiment_score = ((polarity + 1) / 2) * 5  # -1 to 1 → 0 to 5
+            balance_score = (1 - abs(subjectivity - 0.4)) * 5  # Ideal subjectivity ~0.4
             overall_score = (sentiment_score * 0.6 + balance_score * 0.4)
             
             return {
+                'original_text': answer,
                 'polarity': float(polarity),
                 'subjectivity': float(subjectivity),
                 'polarity_label': polarity_label,
                 'sentiment_score': sentiment_score,
                 'balance_score': balance_score,
-                'score': overall_score
+                'score': overall_score,
+                'positive_keywords_found': pos_count,
+                'negative_keywords_found': neg_count,
+                'technical_keywords_found': tech_count
             }
+        
         except Exception as e:
+            # Fallback
             return {
                 'polarity': 0.0,
                 'subjectivity': 0.5,
                 'polarity_label': 'Neutral',
                 'sentiment_score': 2.5,
                 'balance_score': 2.5,
-                'score': 2.5
+                'score': 2.5,
+                'positive_keywords_found': 0,
+                'negative_keywords_found': 0,
+                'technical_keywords_found': 0
             }
+        
     
     def readability_analysis(self, answer):
         """
