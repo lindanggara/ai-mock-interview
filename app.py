@@ -358,8 +358,7 @@ with st.sidebar:
             type=['pdf', 'docx', 'doc'],
             help="Upload CV untuk analisis skill dan rekomendasi pertanyaan"
         )
-        
-        if uploaded_file:
+    if uploaded_file:
             with st.spinner("Menganalisis CV Anda..."):
                 cv_data = cv_analyzer.analyze_cv(uploaded_file)
                 st.session_state.cv_uploaded = True
@@ -368,12 +367,8 @@ with st.sidebar:
             if cv_data and not cv_data.get('error'):
                 st.success("✅ CV Berhasil Dianalisis!")
                 
-                st.markdown("**Skill yang Terdeteksi:**")
-                if cv_data.get('skills'):
-                    for skill in cv_data['skills'][:8]:
-                        st.markdown(f"• {skill}")
-                
-                st.markdown("**Level Pengalaman:**")
+                # Level Pengalaman
+                st.markdown("**📊 Level Pengalaman:**")
                 level_map = {
                     'Junior': '🔰 Junior',
                     'Mid-level': '⭐ Mid-level',
@@ -381,9 +376,47 @@ with st.sidebar:
                 }
                 level = cv_data.get('experience_level', 'Mid-level')
                 st.info(f"{level_map.get(level, level)}")
+                
+                # Lama Pengalaman
+                if cv_data.get('experience_years') and cv_data['experience_years'] != 'Tidak disebutkan':
+                    st.markdown(f"**⏱️ Lama Pengalaman:** {cv_data['experience_years']}")
+                                
+                # Skill yang Terdeteksi
+                st.markdown("---")
+                st.markdown("**🛠️ Skill yang Terdeteksi:**")
+                
+                # Skill berdasarkan kategori
+                skill_categories = cv_data.get('skill_categories', {})
+                if skill_categories:
+                    for category, skills in skill_categories.items():
+                        if skills:
+                            with st.expander(f"**{category}** ({len(skills)} skills)", expanded=False):
+                                for skill in skills:
+                                    st.markdown(f"• {skill}")
+                else:
+                    # Fallback ke skills biasa
+                    if cv_data.get('skills'):
+                        for skill in cv_data['skills'][:12]:
+                            st.markdown(f"• {skill}")
+                
+                # Total skills
+                total_skills = len(cv_data.get('skills', []))
+                if total_skills > 0:
+                    st.caption(f"💡 Total: {total_skills} skills terdeteksi")
+                
+                # Rekomendasi CV
+                if cv_data.get('recommendations'):
+                    st.markdown("---")
+                    st.markdown("**💡 Rekomendasi Perbaikan CV:**")
+                    with st.expander("Lihat Rekomendasi", expanded=False):
+                        for i, rec in enumerate(cv_data['recommendations'], 1):
+                            st.markdown(f"{i}. {rec}")
+                
             else:
                 st.error("❌ Gagal membaca CV. Coba file lain.")
-    
+                if cv_data.get('error'):
+                    st.caption(f"Error: {cv_data['error']}")
+
     st.markdown("---")
     
     # Statistik Interview
